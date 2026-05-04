@@ -9,6 +9,18 @@ DB_USER=$5
 DB_PASS=$6
 DOMAIN=$7
 
+function creaSwap() {
+    sudo fallocate -l 2G /swapfile
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    sudo swapon /swapfile
+}
+
+function eliminaSwap() {
+    sudo swapoff /swapfile
+    sudo rm /swapfile
+}
+
 function creaFolder() {
     path="/var/www/$ALIAS"
 
@@ -54,10 +66,21 @@ function cloneRepo() {
         }
     fi
 
-    composer install || {
-        echo "===> Error en composer"
+    creaSwap
+
+    composer update || {
+        echo "===> Error al actualizar Composer"
+        eliminaSwap
         exit 1
     }
+
+    composer install || {
+        echo "===> Error en composer"
+        eliminaSwap
+        exit 1
+    }
+
+    eliminaSwap
 
     php artisan key:generate --force
 }
@@ -230,21 +253,15 @@ function compileFrontEnd() {
         npm install || exit 1
         npm run build || exit 1
     else
-        sudo fallocate -l 2G /swapfile
-        sudo chmod 600 /swapfile
-        sudo mkswap /swapfile
-        sudo swapon /swapfile
+        creaSwap
 
         npm install || exit 1
         npm run prod || {
-            sudo swapoff /swapfile
-            sudo rm /swapfile
-
+            eliminaSwap
             exit 1
         }
 
-        sudo swapoff /swapfile
-        sudo rm /swapfile
+        eliminaSwap
     fi
 
     php artisan storage:link

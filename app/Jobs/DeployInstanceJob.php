@@ -34,13 +34,12 @@ class DeployInstanceJob implements ShouldQueue
         try {
             $result = Process::run("{$process} " .
                 "{$this->instancia->alias} " .
-                "{$this->instancia->base_path} " .
-                "{$this->instancia->dominio} " .
                 "{$this->instancia->repositorio} " .
                 "{$this->instancia->rama} " .
-                "{$this->instancia->database_user} " .
                 "{$this->instancia->database_name} " .
-                "{$this->instancia->database_password}"
+                "{$this->instancia->database_user} " .
+                "{$this->instancia->database_password} " .
+                "{$this->instancia->dominio}"
             );
 
             if($result->failed()) {
