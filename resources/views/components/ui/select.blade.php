@@ -11,7 +11,6 @@
 @php
     // If id is not provided, fallback to name
     $id = $id ?? $name;
-    xdebug_break();
     // Use Livewire's validation error if error prop is not set but name is
     if ($name && !isset($error)) {
         $error = $errors->first($name);
